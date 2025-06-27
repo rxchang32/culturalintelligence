@@ -1,5 +1,3 @@
-# streamlit_app.py
-
 import streamlit as st
 
 # Perguntas e categorias
@@ -30,14 +28,44 @@ preguntas = [
 opcoes = ["Strongly Disagree", "Disagree", "Somewhat Disagree", "Neutral", "Somewhat Agree", "Agree", "Strongly Agree"]
 valores = [1, 2, 3, 4, 5, 6, 7]
 
+# Título e instruções
 st.title("Cultural Intelligence (CQ) Questionnaire")
+st.write("Please answer each question based on how much you agree or disagree.")
 
-respostas = []
-for i, (pergunta, _) in enumerate(preguntas):
-    resposta = st.radio(f"{i+1}. {pergunta}", opcoes, index=3, key=f"q_{i}")
-    respostas.append(resposta)
+# Sessão de estado para reset
+if "show_results" not in st.session_state:
+    st.session_state["show_results"] = False
 
-if st.button("Ver resultado"):
+if "respostas" not in st.session_state:
+    st.session_state["respostas"] = [opcoes[3]] * len(preguntas)
+
+# Formulário de perguntas
+with st.form("cq_form"):
+    for i, (pergunta, _) in enumerate(preguntas):
+        st.session_state["respostas"][i] = st.radio(
+            f"{i+1}. {pergunta}",
+            opcoes,
+            index=opcoes.index(st.session_state["respostas"][i]),
+            key=f"q_{i}"
+        )
+    
+    col1, col2 = st.columns([1, 1])
+    with col1:
+        enviar = st.form_submit_button("✅ Ver resultado")
+    with col2:
+        reiniciar = st.form_submit_button("🔄 Reiniciar")
+
+# Processamento
+if enviar:
+    st.session_state["show_results"] = True
+
+if reiniciar:
+    st.session_state["respostas"] = [opcoes[3]] * len(preguntas)
+    st.session_state["show_results"] = False
+    st.experimental_rerun()
+
+# Resultados
+if st.session_state["show_results"]:
     resultados = {
         "Metacognitive CQ": 0,
         "Cognitive CQ": 0,
@@ -45,7 +73,7 @@ if st.button("Ver resultado"):
         "Behavioral CQ": 0,
     }
 
-    for i, resposta in enumerate(respostas):
+    for i, resposta in enumerate(st.session_state["respostas"]):
         categoria = preguntas[i][1]
         valor = valores[opcoes.index(resposta)]
         resultados[categoria] += valor
