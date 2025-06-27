@@ -1,3 +1,5 @@
+# streamlit_app.py
+
 import streamlit as st
 
 # Perguntas e categorias
@@ -30,38 +32,12 @@ valores = [1, 2, 3, 4, 5, 6, 7]
 
 st.title("Cultural Intelligence (CQ) Questionnaire")
 
-# Estado inicial
-if "respostas" not in st.session_state:
-    st.session_state["respostas"] = [opcoes[3]] * len(preguntas)
-    st.session_state["show_results"] = False
+respostas = []
+for i, (pergunta, _) in enumerate(preguntas):
+    resposta = st.radio(f"{i+1}. {pergunta}", opcoes, index=3, key=f"q_{i}")
+    respostas.append(resposta)
 
-# Formulário
-with st.form("cq_form"):
-    for i, (pergunta, _) in enumerate(preguntas):
-        st.session_state["respostas"][i] = st.radio(
-            f"{i+1}. {pergunta}",
-            opcoes,
-            index=opcoes.index(st.session_state["respostas"][i]),
-            key=f"q_{i}"
-        )
-
-    col1, col2 = st.columns(2)
-    enviar = col1.form_submit_button("✅ Ver resultado")
-    reiniciar = col2.form_submit_button("🔄 Reiniciar")
-
-# Lógica de botões
-if enviar:
-    st.session_state["show_results"] = True
-
-if reiniciar:
-    st.session_state["respostas"] = [opcoes[3]] * len(preguntas)
-    st.session_state["show_results"] = False
-    # Reset visual manual: força o formulário a "recarregar" removendo respostas
-    for i in range(len(preguntas)):
-        st.session_state[f"q_{i}"] = opcoes[3]
-
-# Resultados
-if st.session_state["show_results"]:
+if st.button("Ver resultado"):
     resultados = {
         "Metacognitive CQ": 0,
         "Cognitive CQ": 0,
@@ -69,7 +45,7 @@ if st.session_state["show_results"]:
         "Behavioral CQ": 0,
     }
 
-    for i, resposta in enumerate(st.session_state["respostas"]):
+    for i, resposta in enumerate(respostas):
         categoria = preguntas[i][1]
         valor = valores[opcoes.index(resposta)]
         resultados[categoria] += valor
