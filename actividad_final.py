@@ -19,10 +19,10 @@ Target group: Students from Management & Leadership Area.
 
 """
 
+import streamlit as st
 
-
-import ipywidgets as widgets
-from IPython.display import display, clear_output
+#import ipywidgets as widgets
+#from IPython.display import display, clear_output
 
 # Preguntas y grupos
 preguntas = [
