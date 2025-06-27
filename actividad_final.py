@@ -28,18 +28,14 @@ preguntas = [
 opcoes = ["Strongly Disagree", "Disagree", "Somewhat Disagree", "Neutral", "Somewhat Agree", "Agree", "Strongly Agree"]
 valores = [1, 2, 3, 4, 5, 6, 7]
 
-# Título e instruções
 st.title("Cultural Intelligence (CQ) Questionnaire")
-st.write("Please answer each question based on how much you agree or disagree.")
 
-# Sessão de estado para reset
-if "show_results" not in st.session_state:
-    st.session_state["show_results"] = False
-
+# Estado inicial
 if "respostas" not in st.session_state:
     st.session_state["respostas"] = [opcoes[3]] * len(preguntas)
+    st.session_state["show_results"] = False
 
-# Formulário de perguntas
+# Formulário
 with st.form("cq_form"):
     for i, (pergunta, _) in enumerate(preguntas):
         st.session_state["respostas"][i] = st.radio(
@@ -48,21 +44,21 @@ with st.form("cq_form"):
             index=opcoes.index(st.session_state["respostas"][i]),
             key=f"q_{i}"
         )
-    
-    col1, col2 = st.columns([1, 1])
-    with col1:
-        enviar = st.form_submit_button("✅ Ver resultado")
-    with col2:
-        reiniciar = st.form_submit_button("🔄 Reiniciar")
 
-# Processamento
+    col1, col2 = st.columns(2)
+    enviar = col1.form_submit_button("✅ Ver resultado")
+    reiniciar = col2.form_submit_button("🔄 Reiniciar")
+
+# Lógica de botões
 if enviar:
     st.session_state["show_results"] = True
 
 if reiniciar:
     st.session_state["respostas"] = [opcoes[3]] * len(preguntas)
     st.session_state["show_results"] = False
-    st.experimental_rerun()
+    # Reset visual manual: força o formulário a "recarregar" removendo respostas
+    for i in range(len(preguntas)):
+        st.session_state[f"q_{i}"] = opcoes[3]
 
 # Resultados
 if st.session_state["show_results"]:
